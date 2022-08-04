@@ -146,6 +146,8 @@ func ConvertValue(v *nebula_go.ValueWrapper) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
+	}else{
+		value = v.String()
 	}
 	return value, nil
 }

@@ -45,15 +45,19 @@ func (c *Client) Query(stmt string) (*nebula_go.ResultSet, error) {
 		sess *nebula_go.Session
 		err  error
 	)
-	for i := 0; i < 3; i++ {
+	for i := 0; i < defaultMinConnSize+1; i++ {
 		sess, err = pool.borrow()
 		if err != nil {
 			return nil, err
 		}
 		//ping
-		if _, err := sess.Execute("yield 1"); err != nil {
+		if resp, err := sess.Execute("yield 1"); err != nil {
 			sess = nil
 		} else {
+			if !resp.IsSucceed() {
+				Logger.Warningf("cannot ping the session, err: %s", resp.GetErrorMsg())
+				continue
+			}
 			break
 		}
 	}
