@@ -146,7 +146,36 @@ func ConvertValue(v *nebula_go.ValueWrapper) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-	}else{
+	} else if v.IsList() {
+		tmp := make([]interface{}, 0)
+		vList, err := v.AsList()
+		if err != nil {
+			return nil, err
+		}
+		for _, subV := range vList {
+			s, err := ConvertValue(&subV)
+			if err != nil {
+				return nil, err
+			}
+			tmp = append(tmp, s)
+		}
+		value = tmp
+	} else if v.IsMap() {
+		tmp := make(map[string]interface{})
+		vMap, err := v.AsMap()
+		if err != nil {
+			return nil, err
+		}
+		for k, v := range vMap {
+			subV, err := ConvertValue(&v)
+			if err != nil {
+				return nil, err
+			}
+			tmp[k] = subV
+		}
+		value = tmp
+
+	} else {
 		value = v.String()
 	}
 	return value, nil
