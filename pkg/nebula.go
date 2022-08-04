@@ -128,6 +128,13 @@ func (sp *sessionPool) borrow() (*nebula_go.Session, error) {
 		if err != nil {
 			return nil, err
 		}
+		r, err := sess.Execute(fmt.Sprintf("USE %s", sp.opts.Space))
+		if err != nil {
+			return nil, err
+		}
+		if !r.IsSucceed() {
+			return nil, fmt.Errorf("cannot use the space: %s", sp.opts.Space)
+		}
 		s = *sess
 	}
 	return &s, nil
